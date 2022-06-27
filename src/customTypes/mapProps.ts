@@ -10,3 +10,5 @@ export type MapPropsSectionType = {
   title: string;
   content: Array<MapPropsContentType>;
 };
+
+export type MapActionType = 'Click' | 'Hover';

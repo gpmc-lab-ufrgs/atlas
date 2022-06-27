@@ -2,6 +2,7 @@ import * as turf from '@turf/turf';
 import mapboxgl from 'mapbox-gl';
 
 import { District } from '@customTypes/feature';
+import { MapActionType } from '@customTypes/mapProps';
 
 import { hoveredPopup, clickedPopup } from '../../const';
 
@@ -21,32 +22,33 @@ function setFeatureHover(featureID: number, map: mapboxgl.Map, state: boolean) {
   map.setFeatureState({ source: 'district', id: featureID }, { hover: state });
 }
 
-export function addHoverPopup(feature: mapboxgl.EventData, map: mapboxgl.Map) {
-  const coordinates = feature.lngLat;
-  const regionName = feature.features[0]?.properties?.NM_MUN;
-
-  hoveredPopup
-    .setLngLat(coordinates)
-    .setHTML(`<div style="display: flex;flex-direction: column;"><h5>${regionName}</h5></div>`);
-
-  hoveredPopup.addTo(map);
-}
-
-export function addClickPopup(feature: mapboxgl.EventData, map: mapboxgl.Map) {
-  const coordinates = feature.lngLat;
-  const regionName = feature.features[0]?.properties?.NM_MUN;
+export function addPopup(
+  feature: Feature,
+  map: mapboxgl.Map,
+  lngLat: mapboxgl.LngLat | [number, number],
+  type: MapActionType,
+) {
+  const regionName = feature?.properties?.NM_MUN;
   const population =
     //@ts-ignore
-    feature.features[0]?.properties?.CD_MUN != undefined //@ts-ignore
-      ? geosesData[feature.features[0]?.properties?.CD_MUN]['Populacao_Estimada']
+    feature?.properties?.CD_MUN != undefined //@ts-ignore
+      ? geosesData[feature?.properties?.CD_MUN]['Populacao_Estimada']
       : '';
 
-  clickedPopup.setLngLat(coordinates).setHTML(
-    `<div style="display: flex; flex-direction: column; cursor: default;
-          pointer-events: all;"><h5>${regionName}</h5><h5>População: ${formatPopulationNumber(population)}</h5></div>`,
-  );
+  if (type === 'Click') {
+    clickedPopup.setLngLat(lngLat).setHTML(
+      `<div style="display: flex; flex-direction: column; cursor: default;
+      pointer-events: all;"><h5>${regionName}</h5><h5>População: ${formatPopulationNumber(population)}</h5></div>`,
+    );
 
-  clickedPopup.addTo(map);
+    clickedPopup.addTo(map);
+  } else if (type === 'Hover') {
+    hoveredPopup
+      .setLngLat(lngLat)
+      .setHTML(`<div style="display: flex;flex-direction: column;"><h5>${regionName}</h5></div>`);
+
+    hoveredPopup.addTo(map);
+  }
 }
 
 export function clickDistrict(feature: Feature, map: mapboxgl.Map) {

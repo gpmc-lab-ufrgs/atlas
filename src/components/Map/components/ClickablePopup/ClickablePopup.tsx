@@ -7,11 +7,8 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 import { formatPopulationNumber } from '@utils/formatValue';
 
-import { isDistrictLayerVisible } from '../../hook/useDistrictLayer/districtActions';
-import { isStateLayerVisible, cleanStateActions, fitStateBounds } from '../../hook/useStateLayer/stateActions';
-
+import { fitStateBounds, handleCleanStateLayer } from '../../hook/useStateLayer/stateActions';
 import * as Styles from './styles';
-import { StickyNote2Sharp } from '@mui/icons-material';
 interface Props {
   regionName: string;
   reference: mapboxgl.Map;
@@ -19,18 +16,12 @@ interface Props {
 }
 
 export default function ClickablePopup({ regionName, reference, feature }: Props) {
-  const handlePopupCkick = () => {
-    isStateLayerVisible(reference, false);
-    isDistrictLayerVisible(reference, true);
-    fitStateBounds(feature, reference);
-    cleanStateActions();
-  };
-
   return (
     <Styles.Popup>
       <Styles.ClickableSection
         onClick={() => {
-          handlePopupCkick();
+          handleCleanStateLayer(reference);
+          fitStateBounds(feature, reference);
         }}
       >
         <Styles.PopupText>{regionName}</Styles.PopupText>

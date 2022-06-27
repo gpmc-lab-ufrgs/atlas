@@ -1,30 +1,26 @@
 import React, { useEffect, useState } from 'react';
 
 import mapboxgl from 'mapbox-gl';
+import * as turf from '@turf/turf';
 
 import { useHighlightedDistrict } from '@store/district/highlightedContext';
 import { useSelectedDistrict } from '@store/district/selectedContext';
 import { useSelectedState } from '@store/state/selectedContext';
 import { useSidebar } from '@store/sidebarContext';
 
-import {
-  highlightDistrict,
-  clickDistrict,
-  cleanDistrictActions,
-  fitDistrictBounds,
-  addClickPopup,
-  addHoverPopup,
-} from './districtActions';
+import { highlightDistrict, clickDistrict, cleanDistrictActions, fitDistrictBounds, addPopup } from './districtActions';
 
 import { RSColors } from './const';
 import { lineOpacity, lineWidth, fillOpacity } from '../../const';
 
 import geojsonGO from '@data/states/RS_Municipios_2020.json';
-import { fitStateBounds } from '../useStateLayer/stateActions';
+import { fitStateBounds, handleCleanStateLayer } from '../useStateLayer/stateActions';
 import { findState } from '@components/Map/actions';
+import { CommentsDisabledOutlined } from '@mui/icons-material';
 
 const useDistrictLayer = () => {
   const [districtReference, setDistrictReference] = useState<mapboxgl.Map>();
+  const [latLng, setLatLng] = useState<mapboxgl.LngLat>();
 
   const { setHighlighted: setHighlightedDistrict, highlighted: highlightedDistrict } = useHighlightedDistrict();
   const { setSelected: setSelectedDistrict, selected: selectedDistrict } = useSelectedDistrict();
@@ -85,17 +81,15 @@ const useDistrictLayer = () => {
     reference.on('click', 'fill-district', (e: mapboxgl.EventData) => {
       if (e.features.length > 0) {
         setSelectedDistrict(e.features[0]);
+        setLatLng(e.lngLat);
       }
-
-      addClickPopup(e, reference);
     });
 
     reference.on('mousemove', 'fill-district', (e: mapboxgl.EventData) => {
       if (e.features.length > 0) {
         setHighlightedDistrict(e.features[0]);
+        setLatLng(e.lngLat);
       }
-
-      addHoverPopup(e, reference);
     });
 
     reference.on('mouseleave', 'fill-district', () => {
@@ -113,28 +107,43 @@ const useDistrictLayer = () => {
   useEffect(() => {
     if (districtReference) {
       highlightDistrict(highlightedDistrict, districtReference);
+      if (highlightedDistrict) {
+        if (latLng) {
+          addPopup(highlightedDistrict, districtReference, latLng, 'Hover');
+        } else {
+          const coordinates = turf.centerOfMass(highlightedDistrict).geometry.coordinates;
+          addPopup(highlightedDistrict, districtReference, [coordinates[0], coordinates[1]], 'Hover');
+        }
+        setLatLng(undefined);
+      }
     }
   }, [highlightedDistrict]);
 
   useEffect(() => {
-    if (districtReference && selectedDistrict !== null) {
+    if (districtReference) {
       clickDistrict(selectedDistrict, districtReference);
 
-      fitDistrictBounds(selectedDistrict, districtReference);
+      if (selectedDistrict) {
+        handleCleanStateLayer(districtReference);
+        fitDistrictBounds(selectedDistrict, districtReference);
+        setIsSidebarOpen(true);
 
-      setIsSidebarOpen(true);
+        if (latLng) {
+          addPopup(selectedDistrict, districtReference, latLng, 'Click');
+        } else {
+          const coordinates = turf.centerOfMass(selectedDistrict).geometry.coordinates;
+          addPopup(selectedDistrict, districtReference, [coordinates[0], coordinates[1]], 'Click');
+        }
+        setLatLng(undefined);
 
-      if (selectedState === null) {
         const state = findState(allState, selectedDistrict.properties.SIGLA_UF);
-
-        setSelectedState(state);
+        if (!selectedState || selectedState !== state) {
+          setSelectedState(state);
+        }
+      } else {
+        cleanDistrictActions();
+        fitStateBounds(selectedState, districtReference);
       }
-    } else if (districtReference) {
-      clickDistrict(null, districtReference);
-
-      fitStateBounds(selectedState, districtReference);
-
-      cleanDistrictActions();
     }
   }, [selectedDistrict]);
 

@@ -28,7 +28,6 @@ const SearchBar: React.FC = () => {
     inputProps,
     inputValue,
     cleanSearchBar,
-    setInputValue,
     highlightedIndex,
     getMenuProps,
     getItemProps,
@@ -38,21 +37,21 @@ const SearchBar: React.FC = () => {
   const [debouncedValue] = useDebounce(inputValue, 500);
 
   useEffect(() => {
-    setInputValue(selected?.properties.NM_MUN ?? '');
-  }, [selected, setInputValue]);
+    const hasDebouncedValue = !!debouncedValue;
 
-  useEffect(() => {
-    const query = debouncedValue
-      .toLowerCase()
-      .replace(/\s+/g, ' ')
-      .replace(/(^\s+|\s+$)/g, '');
+    if (hasDebouncedValue) {
+      const query = debouncedValue
+        .toLowerCase()
+        .replace(/\s+/g, ' ')
+        .replace(/(^\s+|\s+$)/g, '');
 
-    const hasQuery = query !== '';
+      const hasQuery = query !== '';
 
-    if (hasQuery) {
-      setDistrictSearched(getSortedDistricts(getFilteredDistricts(all, query)));
-    } else {
-      setDistrictSearched(getSortedDistricts(all));
+      if (hasQuery) {
+        setDistrictSearched(getSortedDistricts(getFilteredDistricts(all, query)));
+      } else {
+        setDistrictSearched(getSortedDistricts(all));
+      }
     }
   }, [debouncedValue, all]);
 
