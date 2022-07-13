@@ -4,15 +4,15 @@ export const ContributorContainer = styled.div`
   padding: 70px;
 `;
 
-export const ContributorImage = styled.img`
-  width: 100%;
-`;
-
 export const ContributorImageContainer = styled.div`
   width: 200px;
   height: 200px;
   border-radius: 10px;
   overflow: hidden;
+`;
+
+export const ContributorImage = styled.img`
+  width: 100%;
 `;
 
 export const GridDisplay = styled.div`
@@ -57,6 +57,16 @@ export const PersonData = styled.p`
   margin-top: 0 !important;
   margin-bottom: 0 !important;
   font-size: 16px;
+`;
+
+export const SocialProfileLink = styled.a`
+  text-decoration: none;
+  color: inherit !important;
+  border-bottom: 2px solid #54a333;
+  cursor: pointer;
+  :hover {
+    color: #217100 !important;
+  }
 `;
 
 export const ContributorsFunctionDiv = styled.h3`

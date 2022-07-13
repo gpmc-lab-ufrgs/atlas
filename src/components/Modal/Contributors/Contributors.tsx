@@ -43,7 +43,11 @@ const Contributors = () => {
                 )}
 
                 <Styles.PersonDatas>
-                  <Styles.PersonData>{data.name}</Styles.PersonData>
+                  <Styles.PersonData>
+                    <Styles.SocialProfileLink href={data.socialProfile} rel="noreferrer" target="_blank">
+                      {data.name}
+                    </Styles.SocialProfileLink>
+                  </Styles.PersonData>
 
                   {data.function && (
                     <Styles.PersonData>
