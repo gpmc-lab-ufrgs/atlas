@@ -33,6 +33,29 @@ const demographicProps: MapPropsSectionType = {
       description: 'IDHM - Índice de desenvolvimento humano municipal (2010) - IBGE cidades',
       format: (e: any) => formatValue(e, 'float_3'),
       type: 'none',
+      nestedData: [
+        {
+          label: 'IDHM',
+          title: 'Índice de Desenvolvimento Humano (IDH)',
+          description: 'IDHM - Índice de desenvolvimento humano municipal (2010) - IBGE cidades',
+          format: (e: any) => formatValue(e, 'float_3'),
+          type: 'none',
+        },
+        {
+          label: 'HDI_educ',
+          title: 'Índice de Desenvolvimento Humano, dimensão educacional',
+          description: 'Índice de Desenvolvimento Humano, dimensão educacional - GeoSES',
+          format: (e: any) => formatValue(e, 'float_3'),
+          type: 'none',
+        },
+        {
+          label: 'HDI_long',
+          title: 'Índice de Desenvolvimento Humano, dimensão longevidade',
+          description: 'Índice de Desenvolvimento Humano, dimensão longevidade - GeoSES',
+          format: (e: any) => formatValue(e, 'float_3'),
+          type: 'none',
+        },
+      ]
     },
     {
       label: 'HDI_educ',

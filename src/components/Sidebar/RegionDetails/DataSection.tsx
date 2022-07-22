@@ -22,26 +22,82 @@ const DataSection: React.FC<MapPropsSectionType> = ({ title, content }) => {
   const hasSelectedDistrict = Boolean(selected);
 
   return (
-    <Collapsible title={title}>
+    <Collapsible className="nesttt" isTitle={true} title={title}>
       {content.map((props: MapPropsContentType, id) => (
         <Styles.PropsWrapper key={id}>
-          <Tooltip title={props.description} arrow>
-            <Styles.PropsTitle>{props.title}</Styles.PropsTitle>
-          </Tooltip>
+          
+          {!props.nestedData ? 
+            (
+              <>
+                <Tooltip title={props.description} arrow>
+                  <Styles.PropsTitle>{props.title}</Styles.PropsTitle>
+                </Tooltip>
+                {comparison.map((district) => (
+                  <Styles.ValueContent key={district.properties.CD_MUN}>
+                    <p>{district.properties.NM_MUN}</p>
+                    <MetricDetails district={district} metric={props} />
+                  </Styles.ValueContent>
+                ))}
 
-          {comparison.map((district) => (
-            <Styles.ValueContent key={district.properties.CD_MUN}>
-              <p>{district.properties.NM_MUN}</p>
-              <MetricDetails district={district} metric={props} />
-            </Styles.ValueContent>
-          ))}
+                {!isSelectedOnComparison && hasSelectedDistrict && (
+                  <Styles.ValueContent>
+                    <p>{selected?.properties.NM_MUN}</p>
+                    <MetricDetails district={selected} metric={props} />
+                  </Styles.ValueContent>
+                )}
+              </>
+            ) : 
+            (
+              <>
+                <Collapsible isTitle={false} title={props.title}>
+                  {comparison && (
+                    <>
+                      {props.nestedData?.map((data, index) => (
+                        <div key={index}>
+                          <Tooltip title={data.description} arrow>
+                            <Styles.PropsTitle>{data.title}</Styles.PropsTitle>
+                          </Tooltip>
+                          {comparison.map((district) => (
+                            <div key={district.properties.CD_MUN}>
+                              <Styles.ValueContent>
+                                <p>{district.properties.NM_MUN}</p>
+                                <MetricDetails district={district} metric={data} />
+                              </Styles.ValueContent>
+                            </div>
+                          ))}
+                          {!isSelectedOnComparison && hasSelectedDistrict && (
+                            <div key={index}>
+                              <Styles.ValueContent>
+                                <p>{selected?.properties.NM_MUN}</p>
+                                <MetricDetails district={selected} metric={data} />
+                              </Styles.ValueContent>
+                          </div>
+                          )}
+                        </div>
+                      ))}
+                    </>
+                  )}
 
-          {!isSelectedOnComparison && hasSelectedDistrict && (
-            <Styles.ValueContent>
-              <p>{selected?.properties.NM_MUN}</p>
-              <MetricDetails district={selected} metric={props} />
-            </Styles.ValueContent>
-          )}
+                  {!isSelectedOnComparison && !comparison.length && hasSelectedDistrict && (
+                    <>
+                      {props.nestedData.map((data, index) => (
+                        <div key={index}>
+                          <Tooltip title={data.description} arrow>
+                            <Styles.PropsTitle>{data.title}</Styles.PropsTitle>
+                          </Tooltip>
+                          <Styles.ValueContent>
+                            <p>{selected?.properties.NM_MUN}</p>
+                            <MetricDetails district={selected} metric={data} />
+                          </Styles.ValueContent>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </Collapsible>
+              </>
+            )
+          }
+
         </Styles.PropsWrapper>
       ))}
     </Collapsible>
